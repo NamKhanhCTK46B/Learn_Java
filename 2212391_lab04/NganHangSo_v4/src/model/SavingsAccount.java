@@ -26,17 +26,17 @@ public class SavingsAccount extends Account implements ReportService, Withdraw {
         String formatted_balance = currency_format.format(balance).replace("₫", "").trim() + "₫";
         String formatted_amount = currency_format.format(amount).replace("₫", "").trim() + "₫";  
         
-        String logMessage = String.format(
-                "+----------+-------------------------+----------+\n" +
-                "    TRANSACTION RECEIPT SAVINGS\n" +
-                "+----------+-------------------------+----------+\n" +
-                "%-12s %24s\n" +
-                "%-12s %24s\n" +
-                "%-12s %24s\n" +
-                "%-12s %24s\n" +
-                "%-12s %24s\n" +
-                "%-12s %24s\n" +
-                "+----------+-------------------------+----------+",
+        String logMessage = String.format("""
+                                          +----------+-------------------------+----------+
+                                                     TRANSACTION RECEIPT SAVINGS
+                                          +----------+-------------------------+----------+
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          +----------+-------------------------+----------+""",
                 "Time",trans.getTime(),
                 "ID",trans.getId(),
                 "Account",getAccountNumber(),
@@ -60,12 +60,11 @@ public class SavingsAccount extends Account implements ReportService, Withdraw {
         
         if (status) {
             balance = getBalance() - amount;
-        }
-         
-        trans = new Transaction(getAccountNumber(), amount, status);
-        addTransaction(trans);
+            trans = new Transaction(getAccountNumber(), amount, status);
+            addTransaction(trans);
         
-        log(amount);
+            log(amount);
+        }
          
         return status;
     }

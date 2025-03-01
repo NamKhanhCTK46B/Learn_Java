@@ -1,8 +1,12 @@
 
 package model;
 
+import java.io.FileWriter;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.lang.String;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class LoansAccount extends Account implements ReportService, Withdraw {
@@ -23,16 +27,30 @@ public class LoansAccount extends Account implements ReportService, Withdraw {
         String formatted_fee = currency_format.format(fee).replace("₫", "").trim() + "₫";
         String formatted_amount = currency_format.format(amount).replace("₫", "").trim() + "₫";
         
-        System.out.println("+----------+-------------------------+----------+");
-        System.out.println("     TRANSACTION RECEIPT LOANS");
-        System.out.println("+----------+-------------------------+----------+");
-        System.out.printf("%-12s %24s\n", "Time",trans.getTime());
-        System.out.printf("%-12s %24s\n", "ID",trans.getId());
-        System.out.printf("%-12s %24s\n", "Account",getAccountNumber());
-        System.out.printf("%-12s %24s\n", "Amount", formatted_amount);
-        System.out.printf("%-12s %24s\n", "Balance", formatted_balance);
-        System.out.printf("%-12s %24s\n", "Fee + VAT", formatted_fee);
-        System.out.println("+----------+-------------------------+----------+"); 
+        String logMessage = String.format("""
+                                          +----------+-------------------------+----------+
+                                                      TRANSACTION RECEIPT LOANS
+                                          +----------+-------------------------+----------+
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          \t%-12s %24s
+                                          +----------+-------------------------+----------+""",
+                "Time",trans.getTime(),
+                "ID",trans.getId(),
+                "Account",getAccountNumber(),
+                "Amount", formatted_amount,
+                "Balance", formatted_balance,
+                "Fee + VAT", formatted_fee);
+        
+        try (FileWriter writer = new FileWriter("transaction_log.txt", true)) {
+            writer.write(logMessage);
+        } catch (Exception e) {
+            Logger.getLogger(LoansAccount.class.getName()).log(Level.SEVERE, null, e);
+        }
+         
     }
 
     @Override
@@ -49,12 +67,12 @@ public class LoansAccount extends Account implements ReportService, Withdraw {
         
         if (status) {
             balance = getBalance() - total;
+            
+            trans = new Transaction(getAccountNumber(), amount, status);
+            addTransaction(trans);
+        
+            log(amount);
         }
-        
-        trans = new Transaction(getAccountNumber(), amount, status);
-        addTransaction(trans);
-        
-        log(amount);
         
         return status;
     }
